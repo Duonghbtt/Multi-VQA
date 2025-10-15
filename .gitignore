@@ -1,0 +1,52 @@
+# =============================
+# 🔧 IDE / Editor settings
+# =============================
+.idea/
+.vscode/
+
+# =============================
+# 🐍 Python cache
+# =============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# =============================
+# 📓 Jupyter / Notebooks
+# =============================
+*.ipynb_checkpoints/
+
+# =============================
+# 🌱 Virtual environments
+# =============================
+venv/
+env/
+.venv/
+ENV/
+
+# =============================
+# 📦 Data & images
+# =============================
+data/
+downData/
+images/
+datasets/
+outputs/
+logs/
+runs/
+
+# =============================
+# 🧠 Model checkpoints
+# =============================
+checkpoints/
+weights/
+models/*.pth
+models/*.pt
+
+# =============================
+# 🗂 Temporary / debug files
+# =============================
+*.log
+*.tmp
+.DS_Store

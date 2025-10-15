@@ -1,0 +1,1 @@
+# Xây dựng RNN/LSTM/GRU/Transformer encoder cho text

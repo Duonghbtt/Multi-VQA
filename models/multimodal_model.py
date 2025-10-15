@@ -1,0 +1,1 @@
+#Wrapper kết hợp tất cả: image encoder + text encoder + fusion + decoder

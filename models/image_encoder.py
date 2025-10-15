@@ -1,0 +1,1 @@
+# Xây dựng CNN/ViT để encode ảnh thành vector feature
