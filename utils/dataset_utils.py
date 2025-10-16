@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import Dataset
 from PIL import Image
 import ast
-
+from torchvision import transforms
 
 class MultiVQADataset(Dataset):
     """
@@ -25,7 +25,7 @@ class MultiVQADataset(Dataset):
         self.transform = transform
 
         conv_dir = os.path.join(split_dir, f"conversation_{split_name}")
-        img_dir = os.path.join(split_dir, f"image_{split_name}")
+        img_dir = os.path.join(split_dir, f"images_{split_name}")
 
         # Gộp tất cả CSV trong conversation_*
         all_dfs = []
@@ -35,8 +35,10 @@ class MultiVQADataset(Dataset):
                 all_dfs.append(df_part)
         if not all_dfs:
             raise ValueError(f"Không tìm thấy CSV nào trong {conv_dir}")
-
+        print(f"Số lượng csv trong {split_name} là {len(all_dfs)}")
         df = pd.concat(all_dfs, ignore_index=True)
+        print(f"Tổng số dòng (mẫu) trong {split_name}: {df.shape[0]}")
+        print(f"Số cột trong {split_name}: {df.shape[1]}")
 
         # Làm sạch và xử lý cột
         df.dropna(subset=["id", "description"], inplace=True)
@@ -78,3 +80,28 @@ class MultiVQADataset(Dataset):
             "conversations": row["conversations"],
         }
         return item
+
+if __name__ == "__main__":
+    imagenet_mean = [0.485, 0.456, 0.406]
+    imagenet_std = [0.229, 0.224, 0.225]
+
+    train_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(15),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=imagenet_mean, std=imagenet_std)
+    ])
+
+    test_transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=imagenet_mean, std=imagenet_std)
+    ])
+
+    train_dataset = MultiVQADataset(r"D:\VQA\data\train", "train", transform=train_transform)
+    test_dataset = MultiVQADataset(r"D:\VQA\data\test", "test", transform=test_transform)
+    print(len(train_dataset))
+    print(len(test_dataset))
+    print(train_dataset[0])

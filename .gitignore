@@ -36,6 +36,15 @@ outputs/
 logs/
 runs/
 
+# ---- VnCoreNLP ----
+utils/VnCoreNLP-master/VnCoreNLP-*.jar
+utils/VnCoreNLP-master/models/
+utils/VnCoreNLP-master/src/
+utils/VnCoreNLP-master/*.pdf
+utils/VnCoreNLP-master/pom.xml
+utils/VnCoreNLP-master/TagsetDescription.md
+
+
 # =============================
 # 🧠 Model checkpoints
 # =============================
