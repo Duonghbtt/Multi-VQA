@@ -26,7 +26,8 @@ class AnswerDecoder(nn.Module):
         self.embedding = nn.Embedding(vocab_size, hidden_dim)
 
         # LSTM decoder
-        self.lstm = nn.LSTM(hidden_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout)
+        drop = dropout if num_layers > 1 else 0.0
+        self.lstm = nn.LSTM(hidden_dim, hidden_dim, num_layers, batch_first=True, dropout=drop)
 
         # Output projection
         self.fc_out = nn.Linear(hidden_dim, vocab_size)

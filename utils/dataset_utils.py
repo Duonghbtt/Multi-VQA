@@ -7,11 +7,11 @@ from torch.utils.data import Dataset
 from PIL import Image
 import ast
 from torchvision import transforms
-
+from utils.text_preprocessing import preprocess_text
 class MultiVQADataset(Dataset):
     """
     Dataset cho bài toán Multi-modal VQA (ảnh + hội thoại).
-    Hỗ trợ multi-turn conversations và tự load ảnh từ file.
+    Format hội thoại: [{'role': 'user', 'content': ...}, {'role': 'assistant', 'content': ...}]
     """
 
     def __init__(self, split_dir: str, split_name: str, transform=None):
@@ -67,17 +67,30 @@ class MultiVQADataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.data.iloc[idx]
-        image_path = row["image_path"]
-        image = Image.open(image_path).convert("RGB")
-
+        image = Image.open(row["image_path"]).convert("RGB")
         if self.transform:
             image = self.transform(image)
+
+        description = preprocess_text(row["description"])
+
+        conversations = []
+        convs = row["conversations"]
+
+        # Lặp qua toàn bộ hội thoại → lấy từng cặp (user → assistant)
+        for i in range(len(convs) - 1):
+            if convs[i].get("role") == "user" and convs[i + 1].get("role") == "assistant":
+                q = convs[i].get("content", "")
+                a = convs[i + 1].get("content", "")
+                conversations.append({
+                    "q": preprocess_text(q),
+                    "a": preprocess_text(a)
+                })
 
         item = {
             "id": row["id"],
             "image": image,
-            "description": row["description"],
-            "conversations": row["conversations"],
+            "description": description,
+            "conversations": conversations
         }
         return item
 
@@ -88,20 +101,20 @@ if __name__ == "__main__":
     train_transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(15),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2),
+        transforms.ColorJitter(0.2, 0.2),
         transforms.ToTensor(),
         transforms.Normalize(mean=imagenet_mean, std=imagenet_std)
     ])
 
-    test_transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=imagenet_mean, std=imagenet_std)
-    ])
+    dataset = MultiVQADataset(
+        split_dir=r"D:\VQA\data\train",
+        split_name="train",
+        transform=train_transform
+    )
 
-    train_dataset = MultiVQADataset(r"D:\VQA\data\train", "train", transform=train_transform)
-    test_dataset = MultiVQADataset(r"D:\VQA\data\test", "test", transform=test_transform)
-    print(len(train_dataset))
-    print(len(test_dataset))
-    print(train_dataset[0])
+    print("Tổng mẫu:", len(dataset))
+    sample = dataset[0]
+    print("🆔 ID:", sample["id"])
+    print("❓ Q:", sample["image"])
+    print("❓ D:", sample["description"])
+    print("💬 A:", sample["conversations"])
